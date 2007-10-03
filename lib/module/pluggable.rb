@@ -5,20 +5,19 @@ require "pathname"
 
 module Module::Pluggable
 	DEFAULT_OPTS = {
-		:name        => :plugins,
 		:search_path => "plugins",
 		:except      => /_$/,
 		:base_class  => nil,
 	}.freeze
 
-	def pluggable(o={})
+	def pluggable(name=:plugins, o={})
 		opts = DEFAULT_OPTS.merge(o)
-		opts[:search_path] = o[:name] ? o[:name].to_s : opts[:name].to_s unless opts[:search_path]
+		opts[:search_path] = name ? name.to_s : opts[:name].to_s unless opts[:search_path]
 		
 		m = Marshal.dump(opts)
 		class_eval <<-EOS
-			def #{opts[:name]}
-				@#{opts[:name]} ||= Module::Pluggable::Plugins.new(Marshal.load('#{m}'))
+			def #{name}
+				@#{name} ||= Module::Pluggable::Plugins.new(Marshal.load('#{m}'))
 			end
 		EOS
 	end
@@ -117,6 +116,10 @@ module Module::Pluggable
 				ret[k] = v.send(name, *args) if v.respond_to?(name)
 			end
 			ret
+		end
+
+		def method_missing(name, *args)
+			call(name, *args)
 		end
 
 		# foo/foo_bar => Foo::FooBar
