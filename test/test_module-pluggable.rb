@@ -31,6 +31,10 @@ class TestModulePluggable < Test::Unit::TestCase
 		}.new
 		assert test.plugins["Test"]
 		assert_equal "This is test plugin.", test.plugins.call(:description)["Test"]
+
+		obj = Object.new
+		test.plugins.call(:instance_variable_set, :@test_obj, obj)
+		assert_equal obj, test.plugins["Test"].instance_variable_get(:@test_obj)
 	end
 
 	def test_inherit
@@ -55,5 +59,6 @@ class TestModulePluggable < Test::Unit::TestCase
 	end
 
 	class PluginBase
+		# Nice boat.
 	end
 end
