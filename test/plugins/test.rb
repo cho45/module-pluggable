@@ -5,5 +5,6 @@ class Test
 	end
 
 	def foobar
+		@plugins
 	end
 end

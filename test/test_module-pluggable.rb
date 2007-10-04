@@ -18,8 +18,8 @@ class TestModulePluggable < Test::Unit::TestCase
 
 	def test_classname_conversion
 		m = Module::Pluggable::Plugins.new({:search_path => @plugins_dir})
-		assert_equal "foo_bar", m.__send__(:klass2file, "FooBar")
-		assert_equal "FooBar", m.__send__(:file2klass, "foo_bar")
+		assert_equal "foo_bar",     m.__send__(:klass2file, "FooBar")
+		assert_equal "FooBar",      m.__send__(:file2klass, "foo_bar")
 		assert_equal "foo/foo_bar", m.__send__(:klass2file, "Foo::FooBar")
 		assert_equal "Foo::FooBar", m.__send__(:file2klass, "foo/foo_bar")
 	end
@@ -35,6 +35,7 @@ class TestModulePluggable < Test::Unit::TestCase
 		obj = Object.new
 		test.plugins.call(:instance_variable_set, :@test_obj, obj)
 		assert_equal obj, test.plugins["Test"].instance_variable_get(:@test_obj)
+		assert_equal test.plugins, test.plugins["Test"].foobar
 
 		assert_equal "This is test plugin.", test.plugins.description["Test"]
 	end

@@ -61,6 +61,7 @@ module Module::Pluggable
 			end
 
 			@plugins[klass_name][:instance].on_load rescue NameError
+			@plugins[klass_name][:instance].instance_variable_set(:@plugins, self)
 			
 			klass_name
 		end
