@@ -38,6 +38,22 @@ class TestModulePluggable < Test::Unit::TestCase
 		assert_equal test.plugins, test.plugins["Test"].foobar
 
 		assert_equal "This is test plugin.", test.plugins.description["Test"]
+
+		test = Class.new {
+			pluggable :plugins, :search_path => "'"
+		}.new
+	end
+
+	def test_multi
+		path = @plugins_dir
+		test = Class.new {
+			pluggable :plugins, :search_path => path
+			pluggable :filters, :search_path => path
+		}.new
+		assert test.plugins["Test"]
+		assert_equal "This is test plugin.", test.plugins.call(:description)["Test"]
+		assert test.filters["Test"]
+		assert_equal "This is test plugin.", test.filters.call(:description)["Test"]
 	end
 
 	def test_inherit

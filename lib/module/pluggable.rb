@@ -14,10 +14,12 @@ module Module::Pluggable
 		opts = DEFAULT_OPTS.merge(o)
 		opts[:search_path] = name ? name.to_s : opts[:name].to_s unless opts[:search_path]
 		
-		m = Marshal.dump(opts)
+		self.instance_eval do
+			(@opts ||= {})[name] = opts
+		end
 		class_eval <<-EOS
 			def #{name}
-				@#{name} ||= Module::Pluggable::Plugins.new(Marshal.load('#{m}'))
+				@#{name} ||= Module::Pluggable::Plugins.new(self.class.instance_variable_get(:@opts)[:#{name}])
 			end
 		EOS
 	end
