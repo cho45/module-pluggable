@@ -12,7 +12,7 @@ include FileUtils
 AUTHOR = "cho45"
 EMAIL = "cho45@lowreal.net"
 DESCRIPTION = ""
-RUBYFORGE_PROJECT = "module-pluggable"
+RUBYFORGE_PROJECT = "modulepluggable"
 HOMEPATH = "http://#{RUBYFORGE_PROJECT}.rubyforge.org"
 BIN_FILES = %w(  )
 VERS = "0.0.1"
@@ -115,4 +115,26 @@ task :publab do
 	).upload
 end
 
+desc 'Package and upload the release to rubyforge.'
+task :release => [:clean, :package] do |t|
+	v = ENV["VERSION"] or abort "Must supply VERSION=x.y.z"
+	abort "Versions don't match #{v} vs #{VERS}" unless v == VERS
+	pkg = "pkg/#{NAME}-#{VERS}"
 
+	rf = RubyForge.new
+	puts "Logging in"
+	rf.login
+
+	c = rf.userconfig
+#	c["release_notes"] = description if description
+#	c["release_changes"] = changes if changes
+	c["preformatted"] = true
+
+	files = [
+		"#{pkg}.tgz",
+		"#{pkg}.gem"
+	].compact
+
+	puts "Releasing #{NAME} v. #{VERS}"
+	rf.add_release RUBYFORGE_PROJECT, NAME, VERS, *files
+end
