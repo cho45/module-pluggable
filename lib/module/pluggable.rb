@@ -13,15 +13,20 @@ module Module::Pluggable
 	def pluggable(name=:plugins, o={})
 		opts = DEFAULT_OPTS.merge(o)
 		opts[:search_path] = name ? name.to_s : opts[:name].to_s unless opts[:search_path]
-		
-		self.instance_eval do
-			(@opts ||= {})[name] = opts
-		end
+
 		class_eval <<-EOS
 			def #{name}
-				@#{name} ||= Module::Pluggable::Plugins.new(self.class.instance_variable_get(:@opts)[:#{name}])
+				@#{name} ||= Module::Pluggable::Plugins.new(@@pluggable_opts[:#{name}])
+			end
+
+			def self.set_pluggable_opts(name, opts)
+				(@@pluggable_opts ||= {})[name] = opts
 			end
 		EOS
+		self.set_pluggable_opts(name, opts)
+		(class << self; self; end).instance_eval do
+			remove_method(:set_pluggable_opts)
+		end
 	end
 
 	class Plugins

@@ -39,6 +39,11 @@ class TestModulePluggable < Test::Unit::TestCase
 
 		assert_equal "This is test plugin.", test.plugins.description["Test"]
 
+		# inherit test
+		test = Class.new(test.class).new
+		assert test.plugins["Test"]
+		assert_equal "This is test plugin.", test.plugins.call(:description)["Test"]
+
 		test = Class.new {
 			pluggable :plugins, :search_path => "'"
 		}.new
