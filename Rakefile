@@ -22,6 +22,7 @@ NAME = "module-pluggable"
 REV = File.read(".svn/entries")[/committed-rev="(d+)"/, 1] rescue nil
 CLEAN.include ['**/.*.sw?', '*.gem', '.config']
 RDOC_OPTS = ['--quiet', '--title', "#{NAME} documentation",
+	"--charset", "utf-8",
 	"--opname", "index.html",
 	"--line-numbers",
 	"--main", "README",
@@ -87,7 +88,8 @@ end
 Rake::RDocTask.new do |rdoc|
 	rdoc.rdoc_dir = 'html'
 	rdoc.options += RDOC_OPTS
-	rdoc.template = "#{ENV['template']}.rb" if ENV['template']
+	rdoc.template = "#{ENV["HOME"]}/coderepos/lang/ruby/rdoc/generators/template/html/resh/resh.rb"
+	#rdoc.template = "#{ENV['template']}.rb" if ENV['template']
 	if ENV['DOC_FILES']
 		rdoc.rdoc_files.include(ENV['DOC_FILES'].split(/,\s*/))
 	else
