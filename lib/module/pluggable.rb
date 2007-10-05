@@ -1,5 +1,6 @@
-
-#require "module/pluggable"
+# Author::    cho45 <cho45@lowreal.net>
+# Copyright:: copyright (c) 2007 cho45 www.lowreal.net
+# License::   Ruby's
 
 require "pathname"
 
@@ -10,6 +11,19 @@ module Module::Pluggable
 		:base_class  => nil,
 	}.freeze
 
+	# pluggable make the name of instance method
+	# returning instance of Module::Pluggable::Plugin.
+	#
+	# All loaded plugins are in anonymous module,
+	# so you can't access the classes directly,
+	# and you can create some plugin-sets
+	# without confusing class variables etc.
+	# 
+	#     opts => {
+	#         :search_path => name,
+	#         :base_class => nil,
+	#         :except => /_$/, # not yet
+	#     }
 	def pluggable(name=:plugins, o={})
 		opts = DEFAULT_OPTS.merge(o)
 		opts[:search_path] = name ? name.to_s : opts[:name].to_s unless opts[:search_path]
@@ -43,6 +57,13 @@ module Module::Pluggable
 			reload
 		end
 
+		# Load +klass_name+.
+		# The plugin is loaded in anonymous module not order to
+		# destroy the environments.
+		# And remember loaded time for reloading.
+		#
+		# plugin filename must be interconversion with its class name.
+		# In this class, the conversion is do with +file2klass+/+klass2file+ methods.
 		def load(klass_name)
 			return if @plugins.include?(klass_name)
 			
@@ -73,10 +94,12 @@ module Module::Pluggable
 			klass_name
 		end
 
+		# Get instance of +klass_name+ plugin.
 		def [](klass_name)
 			@plugins[klass_name][:instance] if @plugins.key?(klass_name)
 		end
 		
+		# Unload +klass_name
 		def unload(klass_name)
 			if @plugins.key?(klass_name)
 				@plugins[klass_name][:instance].on_unload rescue NameError
@@ -84,6 +107,10 @@ module Module::Pluggable
 			end
 		end
 		
+		# Reload +klass_name+ or
+		# load unloaded plugins or
+		# reload modified plugins.
+		# returns [loaded, unloaded]
 		def reload(klass_name=nil)
 			if klass_name
 				unload(klass_name)
@@ -106,18 +133,22 @@ module Module::Pluggable
 			end
 		end
 		
+		# Unload all plugins and reload it.
 		def force_reload
 			call(:on_unload)
 			@plugins.clear
 			reload
 		end
 		
+		# Iterates with plugin name and its instance.
 		def each(&block)
 			@plugins.each do |k,v|
 				yield k, v[:instance]
 			end
 		end
 		
+		# Call +name+ method of each plugins with +args+
+		# and returns Hash of the result and its plugin name.
 		def call(name, *args)
 			ret = {}
 			each do |k,v|
@@ -126,18 +157,21 @@ module Module::Pluggable
 			ret
 		end
 
+		# Undefined methods are delegated to each plugins.
+		# This is alias of +call+
 		def method_missing(name, *args)
 			call(name, *args)
 		end
 
-		# foo/foo_bar => Foo::FooBar
+		private
+		# convert foo/foo_bar to Foo::FooBar
 		def file2klass(str)
 			str.split("/").map {|c|
 				c.split(/_/).collect {|i| i.capitalize }.join("")
 			}.join("::")
 		end
 		
-		# Foo::FooBar => foo/foo_bar 
+		# convert Foo::FooBar to foo/foo_bar 
 		def klass2file(str)
 			str.split(/::/).map {|c|
 				c.scan(/[A-Z][a-z0-9]*/).join("_").downcase

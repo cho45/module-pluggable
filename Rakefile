@@ -44,7 +44,7 @@ spec = Gem::Specification.new do |s|
 	s.platform = Gem::Platform::RUBY
 	s.has_rdoc = true
 	s.extra_rdoc_files = ["README", "Changelog"]
-	s.rdoc_options += RDOC_OPTS + ['--exclude', '^(examples|extras)/']
+	s.rdoc_options += RDOC_OPTS + ['--exclude', '^(extras)/']
 	s.summary = DESCRIPTION
 	s.description = DESCRIPTION
 	s.author = AUTHOR
@@ -94,6 +94,7 @@ Rake::RDocTask.new do |rdoc|
 		rdoc.rdoc_files.include(ENV['DOC_FILES'].split(/,\s*/))
 	else
 		rdoc.rdoc_files.include('README', 'Changelog')
+		rdoc.rdoc_files.include('examples/simple.rb')
 		rdoc.rdoc_files.include('lib/**/*.rb')
 		rdoc.rdoc_files.include('ext/**/*.c')
 	end
