@@ -6,6 +6,7 @@ require 'rake/packagetask'
 require 'rake/gempackagetask'
 require 'rake/rdoctask'
 require 'rake/contrib/rubyforgepublisher'
+require 'rubyforge'
 require 'fileutils'
 include FileUtils
 
