@@ -12,7 +12,7 @@ include FileUtils
 
 AUTHOR = "cho45"
 EMAIL = "cho45@lowreal.net"
-DESCRIPTION = ""
+DESCRIPTION = "Extend class for pluggable."
 RUBYFORGE_PROJECT = "modulepluggable"
 HOMEPATH = "http://#{RUBYFORGE_PROJECT}.rubyforge.org"
 BIN_FILES = %w(  )
@@ -120,7 +120,7 @@ task :publab do
 end
 
 desc 'Package and upload the release to rubyforge.'
-task :release => [:clean, :package] do |t|
+task :release => [:clean, :package, :release_local] do |t|
 	v = ENV["VERSION"] or abort "Must supply VERSION=x.y.z"
 	abort "Versions don't match #{v} vs #{VERS}" unless v == VERS
 	pkg = "pkg/#{NAME}-#{VERS}"
